@@ -11,7 +11,7 @@ A simple content-based movie recommender built using Python (Flask) and a Netfli
 ## ▶️ How to Run
 
 ### 1. Clone the repo
-git clone https://github.com/your-username/movie-recommender.git cd movie-recommender
+git clone https://github.com/chinmaysontakke/movie-recommender.git cd movie-recommender
 
 ### 2. Install dependencies
 pip install -r requirements.txt
