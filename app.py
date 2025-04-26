@@ -171,4 +171,3 @@ elif st.session_state.logged_in:
                     st.caption(recommended_movie_names[idx])
 else:
     st.warning("Please login first!")
-
