@@ -32,7 +32,7 @@ def recommend(movie):
 # Load data
 # ---------------------------------
 
-movies = pickle.load(open('model/movies.pkl', 'rb'))
+movies = pickle.load(open('movies.pkl', 'rb'))
 
 # ---------------------------------
 # Login System
