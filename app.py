@@ -163,6 +163,6 @@ else:
             cols = st.columns(5)
             for idx, col in enumerate(cols):
                 with col:
-                    st.image(random_movie_posters[idx], use_column_width=True, caption="")
+                    st.image(random_movie_posters[idx], use_container_width=True"")
                     st.markdown(f"<div class='movie-title'>{random_movie_names[idx]}</div>", unsafe_allow_html=True)
                     st.markdown(f"<div class='rating'>⭐ {random_movie_ratings[idx]}</div>", unsafe_allow_html=True)
