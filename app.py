@@ -56,19 +56,25 @@ if 'logged_in' not in st.session_state:
 # ---------------------------------
 
 if not st.session_state.logged_in:
-    st.title("Login to Movie Recommender 🎬")
+    # Centering login container
+    with st.container():
+        st.title("Login to Movie Recommender 🎬")
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
 
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-
-    if st.button("Login"):
-        if login(username, password):
-            st.success("Login Successful ✅")
-            st.session_state.logged_in = True
-        else:
-            st.error("Invalid Credentials ❌")
+        if st.button("Login"):
+            if login(username, password):
+                st.success("Login Successful ✅")
+                st.session_state.logged_in = True
+                st.session_state.username = username  # Store username
+                st.experimental_rerun()  # Refresh the page after login
+            else:
+                st.error("Invalid Credentials ❌")
 else:
     st.title('Movie Recommender System 🍿')
+
+    # Show a welcome message with username
+    st.write(f"Welcome, **{st.session_state.username}** 👋")
 
     movie_list = movies['title'].values
     selected_movie = st.selectbox(
@@ -77,14 +83,16 @@ else:
     )
 
     if st.button('Show Recommendation'):
-        recommended_movie_names, recommended_movie_posters = recommend(selected_movie)
+        with st.spinner('Fetching recommendations... 🎥'):
+            recommended_movie_names, recommended_movie_posters = recommend(selected_movie)
 
         cols = st.columns(5)
         for idx, col in enumerate(cols):
             with col:
                 st.text(recommended_movie_names[idx])
-                st.image(recommended_movie_posters[idx], use_column_width=True)
+                st.image(recommended_movie_posters[idx], use_container_width=True)
 
     if st.button('Logout'):
         st.session_state.logged_in = False
-        st.experimental_rerun()
+        st.session_state.username = None
+        st.experimental_rerun()  # Refresh the page after logout
