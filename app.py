@@ -31,6 +31,7 @@ def recommend(movie):
 # ---------------------------------
 # Load data
 # ---------------------------------
+
 try:
     movies = pickle.load(open('movies.pkl', 'rb'))
 except Exception as e:
@@ -68,7 +69,7 @@ if not st.session_state.logged_in:
                 st.success("Login Successful ✅")
                 st.session_state.logged_in = True
                 st.session_state.username = username  # Store username
-                st.experimental_rerun()  # Refresh the page after login
+                # No rerun needed, the session state will trigger a re-render
             else:
                 st.error("Invalid Credentials ❌")
 else:
@@ -96,4 +97,4 @@ else:
     if st.button('Logout'):
         st.session_state.logged_in = False
         st.session_state.username = None
-        st.experimental_rerun()  # Refresh the page after logout
+        st.experimental_rerun()  # Refresh the page after logout (you can keep this as it works after logout)
