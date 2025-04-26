@@ -24,7 +24,6 @@ def recommend(movie):
     recommended_movie_posters = [fetch_poster(mid) for mid in recommended_movie_ids]
     return recommended_movie_names, recommended_movie_posters
 
-# User Authentication Functions
 def load_users():
     if os.path.exists("users.json"):
         with open("users.json", "r") as f:
@@ -64,7 +63,7 @@ def forgot_password(username, new_password):
 page_bg = """
 <style>
 [data-testid="stAppViewContainer"] {
-    background-color: #DCE3F2;
+    background-color: #E3F2FD;
 }
 </style>
 """
@@ -73,83 +72,103 @@ st.markdown(page_bg, unsafe_allow_html=True)
 # Load Movie Data
 movies = pickle.load(open('movies.pkl', 'rb'))
 
-# Page Control
-if "page" not in st.session_state:
-    st.session_state.page = "login"
+# Session Control
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+    st.session_state.username = ""
+if "current_page" not in st.session_state:
+    st.session_state.current_page = "login"
 
-# ----------------- Pages -----------------
+# Top Right Corner Buttons
+col1, col2 = st.columns([8, 1])
 
-if st.session_state.page == "login":
-    st.title("🎬 Movie Recommender System - Login")
+with col2:
+    if st.session_state.logged_in:
+        if st.button("Logout"):
+            st.session_state.logged_in = False
+            st.session_state.username = ""
+            st.session_state.current_page = "login"
+            st.experimental_rerun()
+    else:
+        if st.button("Login"):
+            st.session_state.current_page = "login"
+            st.experimental_rerun()
+
+# Navigation based on current page
+if st.session_state.current_page == "login" and not st.session_state.logged_in:
+    st.title("Login Page")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
-
-    if st.button("Login"):
+    
+    if st.button("Login Now"):
         if login(username, password):
-            st.success("Login successful!")
-            st.session_state.page = "home"
+            st.success(f"Welcome {username}!")
+            st.session_state.logged_in = True
             st.session_state.username = username
+            st.session_state.current_page = "home"
             st.experimental_rerun()
         else:
             st.error("Invalid username or password!")
 
-    st.info("Don't have an account? Sign up below.")
-    if st.button("Sign Up"):
-        st.session_state.page = "signup"
+    st.info("Don't have an account? Go to Sign Up Page ➡️")
+    if st.button("Go to Sign Up"):
+        st.session_state.current_page = "signup"
+        st.experimental_rerun()
 
-    st.info("Forgot Password?")
-    if st.button("Reset Password"):
-        st.session_state.page = "forgot"
+    st.info("Forgot your password? ➡️")
+    if st.button("Go to Forgot Password"):
+        st.session_state.current_page = "forgot"
+        st.experimental_rerun()
 
-elif st.session_state.page == "signup":
-    st.title("Sign Up")
-    new_username = st.text_input("Choose a username")
-    new_password = st.text_input("Choose a password", type="password")
+elif st.session_state.current_page == "signup" and not st.session_state.logged_in:
+    st.title("Sign Up Page")
+    new_username = st.text_input("Choose Username")
+    new_password = st.text_input("Choose Password", type="password")
 
     if st.button("Create Account"):
         if signup(new_username, new_password):
-            st.success("Account created successfully! Please login.")
-            st.session_state.page = "login"
+            st.success("Account created successfully! Please login now.")
+            st.session_state.current_page = "login"
+            st.experimental_rerun()
         else:
             st.error("Username already exists!")
 
     if st.button("Back to Login"):
-        st.session_state.page = "login"
+        st.session_state.current_page = "login"
+        st.experimental_rerun()
 
-elif st.session_state.page == "forgot":
-    st.title("Reset Password")
-    reset_username = st.text_input("Enter your username")
-    reset_password = st.text_input("Enter new password", type="password")
+elif st.session_state.current_page == "forgot" and not st.session_state.logged_in:
+    st.title("Forgot Password Page")
+    reset_username = st.text_input("Enter your Username")
+    reset_password = st.text_input("Enter New Password", type="password")
 
-    if st.button("Reset"):
+    if st.button("Reset Password"):
         if forgot_password(reset_username, reset_password):
-            st.success("Password reset successful! Please login.")
-            st.session_state.page = "login"
+            st.success("Password Reset successful! Please login.")
+            st.session_state.current_page = "login"
+            st.experimental_rerun()
         else:
             st.error("Username not found!")
 
     if st.button("Back to Login"):
-        st.session_state.page = "login"
+        st.session_state.current_page = "login"
+        st.experimental_rerun()
 
-elif st.session_state.page == "home":
-    st.title(f"Welcome, {st.session_state.username}! 🎬🍿")
+elif st.session_state.logged_in:
+    st.title(f"🎬 Welcome {st.session_state.username} to Movie Recommender System 🍿")
 
     movie_list = movies['title'].values
-    selected_movie = st.selectbox(
-        "Type or select a movie from the dropdown",
-        movie_list
-    )
+    selected_movie = st.selectbox("Type or select a movie", movie_list)
 
-    if st.button('Show Recommendation'):
-        with st.spinner('Fetching awesome recommendations for you... 🍿🎬'):
+    if st.button('Show Recommendations'):
+        with st.spinner('Fetching Recommendations...'):
             recommended_movie_names, recommended_movie_posters = recommend(selected_movie)
 
             cols = st.columns(5)
             for idx in range(5):
                 with cols[idx]:
-                    st.image(recommended_movie_posters[idx])
+                    st.image(recommended_movie_posters[idx], width=150)
                     st.caption(recommended_movie_names[idx])
+else:
+    st.warning("Please login first!")
 
-    if st.button("Logout"):
-        st.session_state.page = "login"
-        st.experimental_rerun()
