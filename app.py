@@ -1,149 +1,100 @@
+import pickle
 import streamlit as st
-import json
-import os
+import requests
 
-# --- Initialize users database ---
-if not os.path.exists("users.json"):
-    with open("users.json", "w") as f:
-        json.dump({}, f)
+# ---------------------------------
+# Helper functions
+# ---------------------------------
 
-def load_users():
-    with open("users.json", "r") as f:
-        return json.load(f)
-
-def save_users(users):
-    with open("users.json", "w") as f:
-        json.dump(users, f)
-
-# --- Authentication Logic ---
-def login(username, password):
-    users = load_users()
-    if username in users and users[username]["password"] == password:
-        return True
-    return False
-
-def signup(username, password):
-    users = load_users()
-    if username in users:
-        return False
-    users[username] = {"password": password}
-    save_users(users)
-    return True
-
-def reset_password(username, new_password):
-    users = load_users()
-    if username in users:
-        users[username]["password"] = new_password
-        save_users(users)
-        return True
-    return False
-
-# --- Streamlit Page Setup ---
-st.set_page_config(page_title="Movie Recommender", page_icon="🎬")
-
-# --- Background Color ---
-st.markdown("""
-    <style>
-    .stApp {
-        background-color: #f0f2f6;
-    }
-    .top-right-buttons {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        display: flex;
-        gap: 10px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# --- Session States ---
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "username" not in st.session_state:
-    st.session_state.username = ""
-if "page" not in st.session_state:
-    st.session_state.page = "login"
-
-# --- Top Right Buttons ---
-def top_buttons():
-    st.markdown('<div class="top-right-buttons">', unsafe_allow_html=True)
-    if st.session_state.logged_in:
-        if st.button("Logout"):
-            st.session_state.logged_in = False
-            st.session_state.username = ""
-            st.session_state.page = "login"
+def fetch_poster(movie_id):
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US"
+    data = requests.get(url)
+    data = data.json()
+    poster_path = data.get('poster_path')
+    if poster_path:
+        full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
+        return full_path
     else:
+        return "https://via.placeholder.com/500x750?text=No+Image"
+
+def recommend(movie):
+    available_movies = movies[movies['title'] != movie]
+    recommended_movies = available_movies.sample(5)
+    recommended_movie_names = []
+    recommended_movie_posters = []
+    for idx, row in recommended_movies.iterrows():
+        movie_id = row['movie_id']
+        recommended_movie_names.append(row['title'])
+        recommended_movie_posters.append(fetch_poster(movie_id))
+    return recommended_movie_names, recommended_movie_posters
+
+# ---------------------------------
+# Load data
+# ---------------------------------
+
+try:
+    movies = pickle.load(open('movies.pkl', 'rb'))
+except Exception as e:
+    st.error(f"Error loading movie data: {e}")
+    st.stop()  # Stop further execution if the file can't be loaded
+
+# ---------------------------------
+# Login System
+# ---------------------------------
+
+USER_CREDENTIALS = {
+    "admin": "1234",
+    "user": "password"
+}
+
+def login(username, password):
+    return USER_CREDENTIALS.get(username) == password
+
+# Session state to keep track of login
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+# ---------------------------------
+# Streamlit App
+# ---------------------------------
+
+if not st.session_state.logged_in:
+    with st.container():
+        st.title("Login to Movie Recommender 🎬")
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+
         if st.button("Login"):
-            st.session_state.page = "login"
-        if st.button("Sign Up"):
-            st.session_state.page = "signup"
-    st.markdown('</div>', unsafe_allow_html=True)
-
-top_buttons()
-
-# --- Pages ---
-def login_page():
-    st.title("Login 🔐")
-    username = st.text_input("Username", key="login_username")
-    password = st.text_input("Password", type="password", key="login_password")
-
-    if st.button("Login Now"):
-        if login(username, password):
-            st.success("Login successful! 🎉")
-            st.session_state.logged_in = True
-            st.session_state.username = username
-            st.session_state.page = "home"
-        else:
-            st.error("Invalid username or password.")
-
-    if st.button("Forgot Password?"):
-        st.session_state.page = "forgot"
-
-def signup_page():
-    st.title("Sign Up 📝")
-    username = st.text_input("New Username", key="signup_username")
-    password = st.text_input("New Password", type="password", key="signup_password")
-    confirm_password = st.text_input("Confirm Password", type="password", key="signup_confirm_password")
-
-    if st.button("Sign Up Now"):
-        if password != confirm_password:
-            st.error("Passwords do not match.")
-        elif signup(username, password):
-            st.success("Account created successfully! Please login.")
-            st.session_state.page = "login"
-        else:
-            st.error("Username already exists.")
-
-def forgot_page():
-    st.title("Forgot Password 🔑")
-    username = st.text_input("Enter Username", key="forgot_username")
-    new_password = st.text_input("New Password", type="password", key="forgot_password")
-    confirm_password = st.text_input("Confirm New Password", type="password", key="forgot_confirm_password")
-
-    if st.button("Reset Password"):
-        if new_password != confirm_password:
-            st.error("Passwords do not match.")
-        elif reset_password(username, new_password):
-            st.success("Password reset successful! Please login.")
-            st.session_state.page = "login"
-        else:
-            st.error("Username does not exist.")
-
-def home_page():
-    st.title(f"Welcome, {st.session_state.username} 🎬")
-    st.write("This is your Movie Recommender System 🚀.")
-    # Your main app code (movie recommendations) can come here.
-    st.success("Start exploring movies now!")
-
-# --- Routing Based on Page ---
-if st.session_state.page == "login":
-    login_page()
-elif st.session_state.page == "signup":
-    signup_page()
-elif st.session_state.page == "forgot":
-    forgot_page()
-elif st.session_state.page == "home" and st.session_state.logged_in:
-    home_page()
+            if login(username, password):
+                st.success("Login Successful ✅")
+                st.session_state.logged_in = True
+                st.session_state.username = username  # Store username
+                # No rerun needed, the session state will trigger a re-render
+            else:
+                st.error("Invalid Credentials ❌")
 else:
-    st.session_state.page = "login"
+    st.title('Movie Recommender System 🍿')
+
+    # Show a welcome message with username
+    st.write(f"Welcome, **{st.session_state.username}** 👋")
+
+    movie_list = movies['title'].values
+    selected_movie = st.selectbox(
+        "Type or select a movie from the dropdown",
+        movie_list
+    )
+
+    if st.button('Show Recommendation'):
+        with st.spinner('Fetching recommendations... 🎥'):
+            recommended_movie_names, recommended_movie_posters = recommend(selected_movie)
+
+        cols = st.columns(5)
+        for idx, col in enumerate(cols):
+            with col:
+                st.text(recommended_movie_names[idx])
+                st.image(recommended_movie_posters[idx], use_container_width=True)
+
+    if st.button('Logout'):
+        st.session_state.logged_in = False
+        st.session_state.username = None
+        st.experimental_rerun()  # Refresh the page after logout (you can keep this as it works after logout)
