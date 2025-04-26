@@ -35,7 +35,7 @@ def recommend(movie):
 # Load Data
 # ---------------------------------
 
-movies = pickle.load(open('model/movies_dict.pkl', 'rb'))
+movies = pickle.load(open('model/movie_dict.pkl', 'rb'))
 
 # ---------------------------------
 # User Management
