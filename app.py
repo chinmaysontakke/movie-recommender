@@ -31,14 +31,16 @@ def recommend(movie):
 # ---------------------------------
 # Load data
 # ---------------------------------
-
-movies = pickle.load(open('movies.pkl', 'rb'))
+try:
+    movies = pickle.load(open('movies.pkl', 'rb'))
+except Exception as e:
+    st.error(f"Error loading movie data: {e}")
+    st.stop()  # Stop further execution if the file can't be loaded
 
 # ---------------------------------
 # Login System
 # ---------------------------------
 
-# Simple hardcoded username-password (you can expand later)
 USER_CREDENTIALS = {
     "admin": "1234",
     "user": "password"
@@ -56,7 +58,6 @@ if 'logged_in' not in st.session_state:
 # ---------------------------------
 
 if not st.session_state.logged_in:
-    # Centering login container
     with st.container():
         st.title("Login to Movie Recommender 🎬")
         username = st.text_input("Username")
