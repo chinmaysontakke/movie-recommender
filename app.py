@@ -150,7 +150,7 @@ else:
             cols = st.columns(5)
             for idx, col in enumerate(cols):
                 with col:
-                    st.image(recommended_movie_posters[idx], use_column_width=True, caption="")
+                    st.image(recommended_movie_posters[idx], use_container_width=True, caption="")
                     st.markdown(f"<div class='movie-title'>{recommended_movie_names[idx]}</div>", unsafe_allow_html=True)
                     st.markdown(f"<div class='rating'>⭐ {recommended_movie_ratings[idx]}</div>", unsafe_allow_html=True)
 
@@ -163,6 +163,6 @@ else:
             cols = st.columns(5)
             for idx, col in enumerate(cols):
                 with col:
-                    st.image(random_movie_posters[idx], use_container_width=True"")
+                    st.image(random_movie_posters[idx], use_container_width=True, caption="")
                     st.markdown(f"<div class='movie-title'>{random_movie_names[idx]}</div>", unsafe_allow_html=True)
                     st.markdown(f"<div class='rating'>⭐ {random_movie_ratings[idx]}</div>", unsafe_allow_html=True)
