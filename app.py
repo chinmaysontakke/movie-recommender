@@ -75,6 +75,30 @@ if 'logged_in' not in st.session_state:
 # ---------------------------------
 
 st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
+# Add background video
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background: transparent;
+    }
+    video#background-video {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100%;
+        min-height: 100%;
+        z-index: -1;
+        object-fit: cover;
+    }
+    </style>
+    <video autoplay muted loop id="background-video">
+        <source src="YOUR_VIDEO_URL.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+    """,
+    unsafe_allow_html=True
+)
 
 # Apply custom CSS
 st.markdown("""
