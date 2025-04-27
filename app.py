@@ -19,31 +19,54 @@ def fetch_poster(movie_id):
         return "https://via.placeholder.com/500x750?text=No+Image", rating
 
 def recommend(movie):
+    # Find genres of the selected movie
+    selected_movie_genres = movies[movies['title'] == movie]['genres'].values[0]
+    selected_movie_genres_set = set(g.strip() for g in selected_movie_genres.split(','))
+
+    # Function to check if at least one genre matches
+    def has_common_genre(genres):
+        movie_genres_set = set(g.strip() for g in genres.split(','))
+        return len(selected_movie_genres_set.intersection(movie_genres_set)) > 0
+
     available_movies = movies[movies['title'] != movie]
-    recommended_movies = available_movies.sample(5)
+    similar_genre_movies = available_movies[available_movies['genres'].apply(has_common_genre)]
+
+    if len(similar_genre_movies) >= 5:
+        recommended_movies = similar_genre_movies.sample(5)
+    else:
+        recommended_movies = similar_genre_movies.sample(len(similar_genre_movies))
+
     recommended_movie_names = []
     recommended_movie_posters = []
     recommended_movie_ratings = []
+    recommended_movie_genres = []
+    
     for idx, row in recommended_movies.iterrows():
         movie_id = row['movie_id']
         poster, rating = fetch_poster(movie_id)
         recommended_movie_names.append(row['title'])
         recommended_movie_posters.append(poster)
         recommended_movie_ratings.append(rating)
-    return recommended_movie_names, recommended_movie_posters, recommended_movie_ratings
+        recommended_movie_genres.append(row['genres'])
+    
+    return recommended_movie_names, recommended_movie_posters, recommended_movie_ratings, recommended_movie_genres
 
 def random_recommend():
     random_movies = movies.sample(5)
     random_movie_names = []
     random_movie_posters = []
     random_movie_ratings = []
+    random_movie_genres = []
+    
     for idx, row in random_movies.iterrows():
         movie_id = row['movie_id']
         poster, rating = fetch_poster(movie_id)
         random_movie_names.append(row['title'])
         random_movie_posters.append(poster)
         random_movie_ratings.append(rating)
-    return random_movie_names, random_movie_posters, random_movie_ratings
+        random_movie_genres.append(row['genres'])
+    
+    return random_movie_names, random_movie_posters, random_movie_ratings, random_movie_genres
 
 # ---------------------------------
 # Load data
@@ -75,30 +98,6 @@ if 'logged_in' not in st.session_state:
 # ---------------------------------
 
 st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
-# Add background video
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background: transparent;
-    }
-    video#background-video {
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        min-width: 100%;
-        min-height: 100%;
-        z-index: -1;
-        object-fit: cover;
-    }
-    </style>
-    <video autoplay muted loop id="background-video">
-        <source src="holly.mp4" type="video/mp4">
-        Your browser does not support HTML5 video.
-    </video>
-    """,
-    unsafe_allow_html=True
-)
 
 # Apply custom CSS
 st.markdown("""
@@ -167,8 +166,8 @@ else:
     cols_action = st.columns(2)
     with cols_action[0]:
         if st.button('Show Recommendation 🎯'):
-            with st.spinner('Fetching recommendations... 🎥'):
-                recommended_movie_names, recommended_movie_posters, recommended_movie_ratings = recommend(selected_movie)
+            with st.spinner('Fetching recommendations based on genre... 🎥'):
+                recommended_movie_names, recommended_movie_posters, recommended_movie_ratings, recommended_movie_genres = recommend(selected_movie)
 
             st.markdown("### Recommended Movies:")
             cols = st.columns(5)
@@ -176,12 +175,12 @@ else:
                 with col:
                     st.image(recommended_movie_posters[idx], use_container_width=True, caption="")
                     st.markdown(f"<div class='movie-title'>{recommended_movie_names[idx]}</div>", unsafe_allow_html=True)
-                    st.markdown(f"<div class='rating'>⭐ {recommended_movie_ratings[idx]}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='rating'>⭐ {recommended_movie_ratings[idx]} | 🎬 {recommended_movie_genres[idx]}</div>", unsafe_allow_html=True)
 
     with cols_action[1]:
         if st.button('Surprise Me! 🎲'):
             with st.spinner('Fetching random picks... 🎥'):
-                random_movie_names, random_movie_posters, random_movie_ratings = random_recommend()
+                random_movie_names, random_movie_posters, random_movie_ratings, random_movie_genres = random_recommend()
 
             st.markdown("### Random Movie Picks:")
             cols = st.columns(5)
@@ -189,4 +188,4 @@ else:
                 with col:
                     st.image(random_movie_posters[idx], use_container_width=True, caption="")
                     st.markdown(f"<div class='movie-title'>{random_movie_names[idx]}</div>", unsafe_allow_html=True)
-                    st.markdown(f"<div class='rating'>⭐ {random_movie_ratings[idx]}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='rating'>⭐ {random_movie_ratings[idx]} | 🎬 {random_movie_genres[idx]}</div>", unsafe_allow_html=True)
