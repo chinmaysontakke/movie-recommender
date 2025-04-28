@@ -72,6 +72,10 @@ st.markdown("""
         }
         body {
             background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         body::before {
             content: "";
@@ -83,6 +87,7 @@ st.markdown("""
             height: 100%;
             background: url("images/hero-img.jpg");
             background-position: center;
+            background-size: cover;
         }
         nav {
             position: fixed;
@@ -93,26 +98,26 @@ st.markdown("""
             width: 167px;
         }
         .form-wrapper {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            border-radius: 4px;
-            padding: 70px;
-            width: 450px;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, .75);
+            position: relative;
+            border-radius: 12px;
+            padding: 40px;
+            width: 400px;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
         }
         .form-wrapper h2 {
             color: #fff;
             font-size: 2rem;
+            text-align: center;
+            margin-bottom: 20px;
         }
         .form-wrapper form {
-            margin: 25px 0 65px;
+            margin: 20px 0;
         }
         form .form-control {
             height: 50px;
             position: relative;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         .form-control input {
             height: 100%;
@@ -124,10 +129,6 @@ st.markdown("""
             color: #fff;
             font-size: 1rem;
             padding: 0 20px;
-        }
-        .form-control input:is(:focus, :valid) {
-            background: #444;
-            padding: 16px 20px 0;
         }
         .form-control label {
             position: absolute;
@@ -153,35 +154,12 @@ st.markdown("""
             border-radius: 4px;
             border: none;
             outline: none;
-            margin: 25px 0 10px;
+            margin: 25px 0;
             cursor: pointer;
             transition: 0.1s ease;
         }
         form button:hover {
             background: #c40812;
-        }
-        .form-wrapper a {
-            text-decoration: none;
-        }
-        .form-wrapper a:hover {
-            text-decoration: underline;
-        }
-        .form-wrapper :where(label, p, small, a) {
-            color: #b3b3b3;
-        }
-        form .form-help {
-            display: flex;
-            justify-content: space-between;
-        }
-        form .remember-me {
-            display: flex;
-        }
-        form .remember-me input {
-            margin-right: 5px;
-            accent-color: #b3b3b3;
-        }
-        form .form-help :where(label, a) {
-            font-size: 0.9rem;
         }
         .form-wrapper p a {
             color: #fff;
@@ -193,6 +171,13 @@ st.markdown("""
         }
         .form-wrapper small a {
             color: #0071eb;
+        }
+        @media (max-width: 740px) {
+            .form-wrapper {
+                width: 90%;
+                top: 50%;
+                transform: translateY(-50%);
+            }
         }
     </style>
 """, unsafe_allow_html=True)
@@ -269,3 +254,4 @@ else:
         st.session_state.logged_in = False
         st.session_state.username = None
         st.experimental_rerun()
+
