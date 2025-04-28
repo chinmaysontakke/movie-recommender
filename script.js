@@ -1,13 +1,3 @@
-// Dummy movie data (this would normally come from a backend or API)
-const movies = [
-    { title: "Movie 1", movie_id: 1 },
-    { title: "Movie 2", movie_id: 2 },
-    { title: "Movie 3", movie_id: 3 },
-    { title: "Movie 4", movie_id: 4 },
-    { title: "Movie 5", movie_id: 5 },
-    // Add more movie data as needed
-];
-
 const USER_CREDENTIALS = {
     "admin": "1234",
     "user": "password"
@@ -15,15 +5,24 @@ const USER_CREDENTIALS = {
 
 let loggedIn = false;
 let currentUser = '';
+let movies = [];
 
-// Function to simulate fetching poster data and ratings from an API
-function fetchPoster(movieId) {
-    const posterPath = `https://via.placeholder.com/500x750?text=Movie+${movieId}`; // Placeholder poster
-    const rating = Math.random() * 5 + 3; // Random rating between 3 and 8
-    return { posterPath, rating: rating.toFixed(1) };
+// Fetch movie poster and rating from API
+async function fetchPoster(movieId) {
+    const url = `https://api.themoviedb.org/3/movie/${movieId}?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const posterPath = data.poster_path ? `https://image.tmdb.org/t/p/w500/${data.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image';
+        const rating = data.vote_average || 'N/A';
+        return { posterPath, rating };
+    } catch (error) {
+        console.error('Error fetching poster data:', error);
+        return { posterPath: 'https://via.placeholder.com/500x750?text=No+Image', rating: 'N/A' };
+    }
 }
 
-// Function to handle login
+// Handle login
 function handleLogin(event) {
     event.preventDefault();
     const username = document.getElementById('username').value;
@@ -41,7 +40,7 @@ function handleLogin(event) {
     }
 }
 
-// Function to populate the movie select dropdown
+// Populate the movie selection dropdown
 function populateMovieSelect() {
     const movieSelect = document.getElementById('movie-select');
     movieSelect.innerHTML = '';
@@ -53,38 +52,31 @@ function populateMovieSelect() {
     });
 }
 
-// Function to show movie recommendations
-function showRecommendations() {
-    const selectedMovie = document.getElementById('movie-select').value;
-    const recommendations = getRecommendations(selectedMovie);
-    displayMovieList(recommendations);
+// Recommend movies based on the selected movie
+async function recommendMovies(selectedMovie) {
+    const recommendedMovies = movies.filter(movie => movie.title !== selectedMovie);
+    const recommendations = [];
+    for (let i = 0; i < 5; i++) {
+        const movie = recommendedMovies[i];
+        const { posterPath, rating } = await fetchPoster(movie.movie_id);
+        recommendations.push({ name: movie.title, poster: posterPath, rating });
+    }
+    return recommendations;
 }
 
-// Function to show random movies
-function showRandomMovies() {
-    const randomMovies = getRandomMovies();
-    displayMovieList(randomMovies);
+// Get random movie recommendations
+async function randomMovies() {
+    const randomMovies = movies.sort(() => Math.random() - 0.5).slice(0, 5);
+    const recommendations = [];
+    for (let movie of randomMovies) {
+        const { posterPath, rating } = await fetchPoster(movie.movie_id);
+        recommendations.push({ name: movie.title, poster: posterPath, rating });
+    }
+    return recommendations;
 }
 
-// Function to get movie recommendations based on selected movie
-function getRecommendations(selectedMovie) {
-    return movies.filter(movie => movie.title !== selectedMovie).slice(0, 5).map(movie => {
-        const { posterPath, rating } = fetchPoster(movie.movie_id);
-        return { name: movie.title, poster: posterPath, rating };
-    });
-}
-
-// Function to get random movie picks
-function getRandomMovies() {
-    const randomMovies = movies.slice().sort(() => Math.random() - 0.5).slice(0, 5);
-    return randomMovies.map(movie => {
-        const { posterPath, rating } = fetchPoster(movie.movie_id);
-        return { name: movie.title, poster: posterPath, rating };
-    });
-}
-
-// Function to display movie list
-function displayMovieList(movieList) {
+// Display movies in the recommendations section
+function displayMovies(movieList) {
     const recommendationsDiv = document.getElementById('recommendations');
     recommendationsDiv.innerHTML = '';
 
@@ -110,7 +102,7 @@ function displayMovieList(movieList) {
     });
 }
 
-// Logout functionality
+// Handle logout
 function logout() {
     loggedIn = false;
     currentUser = '';
@@ -120,6 +112,28 @@ function logout() {
 
 // Event listeners
 document.getElementById('login-form').addEventListener('submit', handleLogin);
-document.getElementById('recommend-button').addEventListener('click', showRecommendations);
-document.getElementById('random-button').addEventListener('click', showRandomMovies);
+document.getElementById('recommend-button').addEventListener('click', async () => {
+    const selectedMovie = document.getElementById('movie-select').value;
+    const recommendations = await recommendMovies(selectedMovie);
+    displayMovies(recommendations);
+});
+document.getElementById('random-button').addEventListener('click', async () => {
+    const recommendations = await randomMovies();
+    displayMovies(recommendations);
+});
 document.getElementById('logout-button').addEventListener('click', logout);
+
+// Load movies from an external source (simulate movie data loading)
+async function loadMovies() {
+    // Replace with actual movie data load (e.g., from a file or API)
+    movies = [
+        { title: "Movie 1", movie_id: 1 },
+        { title: "Movie 2", movie_id: 2 },
+        { title: "Movie 3", movie_id: 3 },
+        { title: "Movie 4", movie_id: 4 },
+        { title: "Movie 5", movie_id: 5 },
+        // Add more movies as needed
+    ];
+}
+
+loadMovies();
