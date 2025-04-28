@@ -1,9 +1,9 @@
-import streamlit as st
 import pickle
+import streamlit as st
 import requests
 
 # ---------------------------------
-# Helper functions for movie fetching
+# Helper functions
 # ---------------------------------
 
 def fetch_poster(movie_id):
@@ -46,7 +46,7 @@ def random_recommend():
     return random_movie_names, random_movie_posters, random_movie_ratings
 
 # ---------------------------------
-# Load movie data
+# Load data
 # ---------------------------------
 
 try:
@@ -56,134 +56,7 @@ except Exception as e:
     st.stop()
 
 # ---------------------------------
-# Streamlit App Layout
-# ---------------------------------
-
-st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
-
-# Apply custom CSS for the login page design
-st.markdown("""
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Roboto', sans-serif;
-        }
-        body {
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        body::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0.5;
-            width: 100%;
-            height: 100%;
-            background: url("images/hero-img.jpg");
-            background-position: center;
-            background-size: cover;
-        }
-        nav {
-            position: fixed;
-            padding: 25px 60px;
-            z-index: 1;
-        }
-        nav a img {
-            width: 167px;
-        }
-        .form-wrapper {
-            position: relative;
-            border-radius: 12px;
-            padding: 40px;
-            width: 400px;
-            background: rgba(0, 0, 0, 0.8);
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
-        }
-        .form-wrapper h2 {
-            color: #fff;
-            font-size: 2rem;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .form-wrapper form {
-            margin: 20px 0;
-        }
-        form .form-control {
-            height: 50px;
-            position: relative;
-            margin-bottom: 20px;
-        }
-        .form-control input {
-            height: 100%;
-            width: 100%;
-            background: #333;
-            border: none;
-            outline: none;
-            border-radius: 4px;
-            color: #fff;
-            font-size: 1rem;
-            padding: 0 20px;
-        }
-        .form-control label {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1rem;
-            pointer-events: none;
-            color: #8c8c8c;
-            transition: all 0.1s ease;
-        }
-        .form-control input:is(:focus, :valid)~label {
-            font-size: 0.75rem;
-            transform: translateY(-130%);
-        }
-        form button {
-            width: 100%;
-            padding: 16px 0;
-            font-size: 1rem;
-            background: #e50914;
-            color: #fff;
-            font-weight: 500;
-            border-radius: 4px;
-            border: none;
-            outline: none;
-            margin: 25px 0;
-            cursor: pointer;
-            transition: 0.1s ease;
-        }
-        form button:hover {
-            background: #c40812;
-        }
-        .form-wrapper p a {
-            color: #fff;
-        }
-        .form-wrapper small {
-            display: block;
-            margin-top: 15px;
-            color: #b3b3b3;
-        }
-        .form-wrapper small a {
-            color: #0071eb;
-        }
-        @media (max-width: 740px) {
-            .form-wrapper {
-                width: 90%;
-                top: 50%;
-                transform: translateY(-50%);
-            }
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# ---------------------------------
-# Login System Logic
+# Login System
 # ---------------------------------
 
 USER_CREDENTIALS = {
@@ -197,12 +70,49 @@ def login(username, password):
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
+# ---------------------------------
+# Streamlit App
+# ---------------------------------
+
+st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
+
+# Apply custom CSS
+st.markdown("""
+    <style>
+        .stApp {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .poster {
+            border-radius: 15px;
+            transition: 0.3s;
+        }
+        .poster:hover {
+            transform: scale(1.05);
+        }
+        .movie-title {
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+        }
+        .rating {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 if not st.session_state.logged_in:
-    st.markdown("<h2 style='text-align: center;'>Sign In</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center;'>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
     with st.form(key="login_form"):
-        username = st.text_input("Email or phone number")
+        username = st.text_input("Username")
         password = st.text_input("Password", type="password")
-        submit_button = st.form_submit_button(label="Sign In")
+        submit_button = st.form_submit_button(label="Login")
 
     if submit_button:
         if login(username, password):
@@ -212,7 +122,15 @@ if not st.session_state.logged_in:
         else:
             st.error("Invalid Credentials ❌")
 else:
-    # After successful login, show the movie recommender system
+    # Top bar with logout
+    with st.container():
+        cols_top = st.columns([8, 1])
+        with cols_top[1]:
+            if st.button("Logout", key="logout", help="Logout", type="primary"):
+                st.session_state.logged_in = False
+                st.session_state.username = None
+                st.experimental_rerun()
+
     st.markdown("<h1 style='text-align: center;'>Movie Recommender System 🍿</h1>", unsafe_allow_html=True)
     st.write(f"### Welcome, **{st.session_state.username}** 👋")
 
@@ -248,10 +166,3 @@ else:
                     st.image(random_movie_posters[idx], use_container_width=True, caption="")
                     st.markdown(f"<div class='movie-title'>{random_movie_names[idx]}</div>", unsafe_allow_html=True)
                     st.markdown(f"<div class='rating'>⭐ {random_movie_ratings[idx]}</div>", unsafe_allow_html=True)
-
-    # Logout Button
-    if st.button("Logout"):
-        st.session_state.logged_in = False
-        st.session_state.username = None
-        st.experimental_rerun()
-
