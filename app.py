@@ -59,7 +59,7 @@ except Exception as e:
 # Streamlit App Configuration
 # ---------------------------------
 
-st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
+st.set_page_config(page_title="Movie Recommender", page_icon="🎬", layout="wide")
 
 # ---------------------------------
 # Login System
@@ -79,62 +79,57 @@ if 'username' not in st.session_state:
     st.session_state.username = None
 
 # ---------------------------------
-# Apply custom CSS
+# Custom Dark Theme CSS
 # ---------------------------------
 
 st.markdown(
     """
     <style>
-    /* Set background image */
+    /* Overall background dark */
     .stApp {
-        background-image: url('https://images.unsplash.com/photo-1581905764498-b6a5f0b73df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        height: 100vh;
+        background-color: #0f1117;
+        color: #ffffff;
     }
 
-    /* Add dark overlay */
-    .stApp::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: -1;
+    /* Center the login box */
+    .login-box {
+        background-color: #1f222b;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        width: 400px;
+        margin: auto;
+        margin-top: 10vh;
     }
 
-    /* Center the login form */
-    .block-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        height: 100vh;
-        padding-top: 0;
-    }
-
-    /* Logo styling */
-    img {
-        width: 100px;
-        margin-bottom: 20px;
-    }
-
-    /* Input styling */
-    input {
-        background-color: #333;
+    /* Login inputs */
+    .stTextInput>div>div>input {
+        background-color: #262730;
         color: white;
         border-radius: 10px;
-        padding: 10px;
+        height: 45px;
     }
 
-    /* Button styling */
-    button {
+    /* Buttons */
+    .stButton>button {
         background-color: #ff4b4b;
         color: white;
         border-radius: 10px;
         padding: 10px 20px;
+        font-weight: bold;
+        margin-top: 15px;
+    }
+    .stButton>button:hover {
+        background-color: #ff3333;
+    }
+
+    /* Titles */
+    .title {
+        text-align: center;
+        color: #ff4b4b;
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 20px;
     }
     </style>
     """,
@@ -145,11 +140,9 @@ st.markdown(
 # Streamlit App UI
 # ---------------------------------
 
-# Add logo
-st.image("https://img.icons8.com/emoji/96/clapper-board-emoji.png", width=120)
-
 if not st.session_state.logged_in:
-    st.title("🎬 Movie Portal Login")
+    st.markdown('<div class="login-box">', unsafe_allow_html=True)
+    st.markdown('<div class="title">🎬 Login to Movie Portal</div>', unsafe_allow_html=True)
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
 
@@ -161,17 +154,18 @@ if not st.session_state.logged_in:
             st.experimental_rerun()
         else:
             st.error("Invalid username or password.")
+    st.markdown('</div>', unsafe_allow_html=True)
+
 else:
-    # Top bar with logout
     with st.container():
-        cols_top = st.columns([8, 1])
-        with cols_top[1]:
-            if st.button("Logout", key="logout", help="Logout", type="primary"):
+        top_cols = st.columns([8,1])
+        with top_cols[1]:
+            if st.button("Logout", key="logout_btn"):
                 st.session_state.logged_in = False
                 st.session_state.username = None
                 st.experimental_rerun()
 
-    st.markdown("<h1 style='text-align: center;'>Movie Recommender System 🍿</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: #ff4b4b;'>🍿 Movie Recommender System</h1>", unsafe_allow_html=True)
     st.write(f"### Welcome, **{st.session_state.username}** 👋")
 
     movie_list = movies['title'].values
@@ -180,9 +174,9 @@ else:
         movie_list
     )
 
-    cols_action = st.columns(2)
-    with cols_action[0]:
-        if st.button('Show Recommendation 🎯'):
+    action_cols = st.columns(2)
+    with action_cols[0]:
+        if st.button('🎯 Show Recommendation'):
             with st.spinner('Fetching recommendations... 🎥'):
                 recommended_movie_names, recommended_movie_posters, recommended_movie_ratings = recommend(selected_movie)
 
@@ -193,8 +187,8 @@ else:
                     st.image(recommended_movie_posters[idx], use_container_width=True, caption=recommended_movie_names[idx])
                     st.markdown(f"⭐ {recommended_movie_ratings[idx]}", unsafe_allow_html=True)
 
-    with cols_action[1]:
-        if st.button('Surprise Me! 🎲'):
+    with action_cols[1]:
+        if st.button('🎲 Surprise Me!'):
             with st.spinner('Fetching random picks... 🎥'):
                 random_movie_names, random_movie_posters, random_movie_ratings = random_recommend()
 
