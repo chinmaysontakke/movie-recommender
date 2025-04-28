@@ -1,6 +1,5 @@
 import pickle
 import streamlit as st
-from streamlit_extras.app_logo import add_logo
 import requests
 
 # ---------------------------------
@@ -57,9 +56,13 @@ except Exception as e:
     st.stop()
 
 # ---------------------------------
+# Streamlit App Configuration
+# ---------------------------------
+
+st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
+
+# ---------------------------------
 # Login System
-# Set page configuration
-st.set_page_config(page_title="Movie Login", page_icon=":clapper:", layout="centered")
 # ---------------------------------
 
 USER_CREDENTIALS = {
@@ -72,15 +75,13 @@ def login(username, password):
 
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
+if 'username' not in st.session_state:
+    st.session_state.username = None
 
 # ---------------------------------
-# Streamlit App
-# ---------------------------------
-
-st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
-
 # Apply custom CSS
-# Custom CSS for background and form styling
+# ---------------------------------
+
 st.markdown(
     """
     <style>
@@ -140,16 +141,26 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# ---------------------------------
+# Streamlit App UI
+# ---------------------------------
+
 # Add logo
 st.image("https://img.icons8.com/emoji/96/clapper-board-emoji.png", width=120)
 
-# Login form
-st.title("🎬 Movie Portal Login")
-username = st.text_input("Username")
-password = st.text_input("Password", type="password")
+if not st.session_state.logged_in:
+    st.title("🎬 Movie Portal Login")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
 
-if st.button("Login"):
-    st.success(f"Welcome, {username}!")
+    if st.button("Login"):
+        if login(username, password):
+            st.session_state.logged_in = True
+            st.session_state.username = username
+            st.success(f"Welcome, {username}!")
+            st.experimental_rerun()
+        else:
+            st.error("Invalid username or password.")
 else:
     # Top bar with logout
     with st.container():
@@ -179,9 +190,8 @@ else:
             cols = st.columns(5)
             for idx, col in enumerate(cols):
                 with col:
-                    st.image(recommended_movie_posters[idx], use_container_width=True, caption="")
-                    st.markdown(f"<div class='movie-title'>{recommended_movie_names[idx]}</div>", unsafe_allow_html=True)
-                    st.markdown(f"<div class='rating'>⭐ {recommended_movie_ratings[idx]}</div>", unsafe_allow_html=True)
+                    st.image(recommended_movie_posters[idx], use_container_width=True, caption=recommended_movie_names[idx])
+                    st.markdown(f"⭐ {recommended_movie_ratings[idx]}", unsafe_allow_html=True)
 
     with cols_action[1]:
         if st.button('Surprise Me! 🎲'):
@@ -192,6 +202,5 @@ else:
             cols = st.columns(5)
             for idx, col in enumerate(cols):
                 with col:
-                    st.image(random_movie_posters[idx], use_container_width=True, caption="")
-                    st.markdown(f"<div class='movie-title'>{random_movie_names[idx]}</div>", unsafe_allow_html=True)
-                    st.markdown(f"<div class='rating'>⭐ {random_movie_ratings[idx]}</div>", unsafe_allow_html=True)
+                    st.image(random_movie_posters[idx], use_container_width=True, caption=random_movie_names[idx])
+                    st.markdown(f"⭐ {random_movie_ratings[idx]}", unsafe_allow_html=True)
