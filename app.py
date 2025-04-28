@@ -126,10 +126,12 @@ else:
     with st.container():
         cols_top = st.columns([8, 1])
         with cols_top[1]:
-            if st.button("Logout", key="logout", help="Logout", type="primary"):
-                st.session_state.logged_in = False
-                st.session_state.username = None
-                st.experimental_rerun()
+           if st.button("Logout", key="logout", help="Logout", type="primary"):
+    st.session_state.logged_in = False
+    st.session_state.username = None
+    # Don't call st.experimental_rerun() here
+    st.experimental_rerun()
+
 
     st.markdown("<h1 style='text-align: center;'>Movie Recommender System 🍿</h1>", unsafe_allow_html=True)
     st.write(f"### Welcome, **{st.session_state.username}** 👋")
