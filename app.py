@@ -77,48 +77,57 @@ if 'logged_in' not in st.session_state:
 st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
 
 # Apply custom CSS
-st.markdown("""
-    <style>
-        .stApp {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        }
-        .poster {
-            border-radius: 15px;
-            transition: 0.3s;
-        }
-        .poster:hover {
-            transform: scale(1.05);
-        }
-        .movie-title {
-            font-weight: bold;
-            font-size: 16px;
-            text-align: center;
-        }
-        .rating {
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-        }
-        .logout-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
 if not st.session_state.logged_in:
-    st.markdown("<h2 style='text-align: center;'>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
-    with st.form(key="login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submit_button = st.form_submit_button(label="Login")
+    # Apply dark theme background for login page
+    st.markdown("""
+        <style>
+            .stApp {
+                background-image: url('https://images.unsplash.com/photo-1526401485004-2a8c24b705f0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                background-position: center;
+                color: white;
+            }
+            .login-container {
+                background-color: rgba(0, 0, 0, 0.7);
+                padding: 40px 30px;
+                border-radius: 15px;
+                max-width: 400px;
+                margin: 0 auto;
+                margin-top: 10%;
+                box-shadow: 0px 0px 10px 2px rgba(255, 255, 255, 0.2);
+            }
+            input {
+                background-color: #222 !important;
+                color: white !important;
+            }
+            label {
+                font-size: 18px !important;
+                margin-bottom: 5px;
+            }
+            button {
+                width: 100%;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<h2 style='text-align: center; color: white;'>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
+    
+    with st.container():
+        st.markdown('<div class="login-container">', unsafe_allow_html=True)
+        with st.form(key="login_form"):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            submit_button = st.form_submit_button(label="Login")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     if submit_button:
         if login(username, password):
             st.success("Login Successful ✅")
             st.session_state.logged_in = True
             st.session_state.username = username
+            st.experimental_rerun()
         else:
             st.error("Invalid Credentials ❌")
 else:
