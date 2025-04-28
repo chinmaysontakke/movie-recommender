@@ -1,5 +1,6 @@
 import pickle
 import streamlit as st
+from streamlit_extras.app_logo import add_logo
 import requests
 
 # ---------------------------------
@@ -57,6 +58,8 @@ except Exception as e:
 
 # ---------------------------------
 # Login System
+# Set page configuration
+st.set_page_config(page_title="Movie Login", page_icon=":clapper:", layout="centered")
 # ---------------------------------
 
 USER_CREDENTIALS = {
@@ -77,59 +80,76 @@ if 'logged_in' not in st.session_state:
 st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
 
 # Apply custom CSS
-if not st.session_state.logged_in:
-    # Apply dark theme background for login page
-    st.markdown("""
-        <style>
-            .stApp {
-                background-image: url('https://images.unsplash.com/photo-1526401485004-2a8c24b705f0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
-                background-size: cover;
-                background-repeat: no-repeat;
-                background-attachment: fixed;
-                background-position: center;
-                color: white;
-            }
-            .login-container {
-                background-color: rgba(0, 0, 0, 0.7);
-                padding: 40px 30px;
-                border-radius: 15px;
-                max-width: 400px;
-                margin: 0 auto;
-                margin-top: 10%;
-                box-shadow: 0px 0px 10px 2px rgba(255, 255, 255, 0.2);
-            }
-            input {
-                background-color: #222 !important;
-                color: white !important;
-            }
-            label {
-                font-size: 18px !important;
-                margin-bottom: 5px;
-            }
-            button {
-                width: 100%;
-            }
-        </style>
-    """, unsafe_allow_html=True)
+# Custom CSS for background and form styling
+st.markdown(
+    """
+    <style>
+    /* Set background image */
+    .stApp {
+        background-image: url('https://images.unsplash.com/photo-1581905764498-b6a5f0b73df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100vh;
+    }
 
-    st.markdown("<h2 style='text-align: center; color: white;'>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
-    
-    with st.container():
-        st.markdown('<div class="login-container">', unsafe_allow_html=True)
-        with st.form(key="login_form"):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
-            submit_button = st.form_submit_button(label="Login")
-        st.markdown('</div>', unsafe_allow_html=True)
+    /* Add dark overlay */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: -1;
+    }
 
-    if submit_button:
-        if login(username, password):
-            st.success("Login Successful ✅")
-            st.session_state.logged_in = True
-            st.session_state.username = username
-            st.experimental_rerun()
-        else:
-            st.error("Invalid Credentials ❌")
+    /* Center the login form */
+    .block-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100vh;
+        padding-top: 0;
+    }
+
+    /* Logo styling */
+    img {
+        width: 100px;
+        margin-bottom: 20px;
+    }
+
+    /* Input styling */
+    input {
+        background-color: #333;
+        color: white;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    /* Button styling */
+    button {
+        background-color: #ff4b4b;
+        color: white;
+        border-radius: 10px;
+        padding: 10px 20px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Add logo
+st.image("https://img.icons8.com/emoji/96/clapper-board-emoji.png", width=120)
+
+# Login form
+st.title("🎬 Movie Portal Login")
+username = st.text_input("Username")
+password = st.text_input("Password", type="password")
+
+if st.button("Login"):
+    st.success(f"Welcome, {username}!")
 else:
     # Top bar with logout
     with st.container():
