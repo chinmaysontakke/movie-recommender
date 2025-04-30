@@ -42,6 +42,8 @@ h1, h2, h3, h4, h5, h6, p, div {
 </style>
 '''
 st.markdown(page_bg_img, unsafe_allow_html=True)
+
+# ---------------------------------
 # Helper functions
 # ---------------------------------
 
@@ -112,8 +114,6 @@ if 'logged_in' not in st.session_state:
 # ---------------------------------
 # Streamlit App
 # ---------------------------------
-
-st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
 
 # Apply custom CSS
 st.markdown("""
