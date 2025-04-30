@@ -293,5 +293,5 @@ else:
             for idx, col in enumerate(cols):
                 with col:
                     st.image(posters[idx], use_container_width=True)
-::contentReference[oaicite:0]{index=0}
+#::contentReference[oaicite:0]{index=0}
  
