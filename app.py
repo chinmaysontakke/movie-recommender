@@ -2,51 +2,83 @@ import pickle
 import streamlit as st
 import requests
 
+# Set Streamlit page configuration - must be FIRST Streamlit command
+st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
+
+# Apply custom CSS with background image
+page_bg_img = '''
+<style>
+body {
+background-image: url("https://img.freepik.com/free-photo/3d-cinema-theatre-room-with-seating_23-2151005451.jpg?t=st=1746025320~exp=1746028920~hmac=398453dea2c2d5ac85daa1995609f2b881e81ef7faf8975c97eeb4f5ad48c73b&w=1380");
+background-size: cover;
+background-repeat: no-repeat;
+background-attachment: fixed;
+background-position: center;
+}
+.stApp {
+    background-color: rgba(0, 0, 0, 0.7);  /* optional dark overlay */
+}
+.poster {
+    border-radius: 15px;
+    transition: 0.3s;
+}
+.poster:hover {
+    transform: scale(1.05);
+}
+.movie-title {
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
+}
+.rating {
+    text-align: center;
+    color: #fff;
+    font-size: 14px;
+}
+h1, h2, h3, h4, h5, h6, p, div {
+    color: #fff !important;
+}
+</style>
+'''
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
 # ---------------------------------
-# Helper functions
+# Helper Functions
 # ---------------------------------
 
 def fetch_poster(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US"
-    data = requests.get(url)
-    data = data.json()
+    data = requests.get(url).json()
     poster_path = data.get('poster_path')
     rating = data.get('vote_average', 'N/A')
     if poster_path:
-        full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
-        return full_path, rating
+        return "https://image.tmdb.org/t/p/w500/" + poster_path, rating
     else:
         return "https://via.placeholder.com/500x750?text=No+Image", rating
 
 def recommend(movie):
     available_movies = movies[movies['title'] != movie]
     recommended_movies = available_movies.sample(5)
-    recommended_movie_names = []
-    recommended_movie_posters = []
-    recommended_movie_ratings = []
-    for idx, row in recommended_movies.iterrows():
-        movie_id = row['movie_id']
-        poster, rating = fetch_poster(movie_id)
-        recommended_movie_names.append(row['title'])
-        recommended_movie_posters.append(poster)
-        recommended_movie_ratings.append(rating)
-    return recommended_movie_names, recommended_movie_posters, recommended_movie_ratings
+    names, posters, ratings = [], [], []
+    for _, row in recommended_movies.iterrows():
+        poster, rating = fetch_poster(row['movie_id'])
+        names.append(row['title'])
+        posters.append(poster)
+        ratings.append(rating)
+    return names, posters, ratings
 
 def random_recommend():
     random_movies = movies.sample(5)
-    random_movie_names = []
-    random_movie_posters = []
-    random_movie_ratings = []
-    for idx, row in random_movies.iterrows():
-        movie_id = row['movie_id']
-        poster, rating = fetch_poster(movie_id)
-        random_movie_names.append(row['title'])
-        random_movie_posters.append(poster)
-        random_movie_ratings.append(rating)
-    return random_movie_names, random_movie_posters, random_movie_ratings
+    names, posters, ratings = [], [], []
+    for _, row in random_movies.iterrows():
+        poster, rating = fetch_poster(row['movie_id'])
+        names.append(row['title'])
+        posters.append(poster)
+        ratings.append(rating)
+    return names, posters, ratings
 
 # ---------------------------------
-# Load data
+# Load Data
 # ---------------------------------
 
 try:
@@ -71,41 +103,8 @@ if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
 # ---------------------------------
-# Streamlit App
+# Main App Interface
 # ---------------------------------
-
-st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
-
-# Apply custom CSS
-st.markdown("""
-    <style>
-        .stApp {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        }
-        .poster {
-            border-radius: 15px;
-            transition: 0.3s;
-        }
-        .poster:hover {
-            transform: scale(1.05);
-        }
-        .movie-title {
-            font-weight: bold;
-            font-size: 16px;
-            text-align: center;
-        }
-        .rating {
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-        }
-        .logout-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-    </style>
-""", unsafe_allow_html=True)
 
 if not st.session_state.logged_in:
     st.markdown("<h2 style='text-align: center;'>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
@@ -122,7 +121,7 @@ if not st.session_state.logged_in:
         else:
             st.error("Invalid Credentials ❌")
 else:
-    # Top bar with logout
+    # Logout button
     with st.container():
         cols_top = st.columns([8, 1])
         with cols_top[1]:
@@ -135,34 +134,32 @@ else:
     st.write(f"### Welcome, **{st.session_state.username}** 👋")
 
     movie_list = movies['title'].values
-    selected_movie = st.selectbox(
-        "Type or select a movie from the dropdown",
-        movie_list
-    )
+    selected_movie = st.selectbox("Type or select a movie from the dropdown", movie_list)
 
     cols_action = st.columns(2)
+
     with cols_action[0]:
         if st.button('Show Recommendation 🎯'):
             with st.spinner('Fetching recommendations... 🎥'):
-                recommended_movie_names, recommended_movie_posters, recommended_movie_ratings = recommend(selected_movie)
+                names, posters, ratings = recommend(selected_movie)
 
             st.markdown("### Recommended Movies:")
             cols = st.columns(5)
             for idx, col in enumerate(cols):
                 with col:
-                    st.image(recommended_movie_posters[idx], use_container_width=True, caption="")
-                    st.markdown(f"<div class='movie-title'>{recommended_movie_names[idx]}</div>", unsafe_allow_html=True)
-                    st.markdown(f"<div class='rating'>⭐ {recommended_movie_ratings[idx]}</div>", unsafe_allow_html=True)
+                    st.image(posters[idx], use_container_width=True)
+                    st.markdown(f"<div class='movie-title'>{names[idx]}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='rating'>⭐ {ratings[idx]}</div>", unsafe_allow_html=True)
 
     with cols_action[1]:
         if st.button('Surprise Me! 🎲'):
             with st.spinner('Fetching random picks... 🎥'):
-                random_movie_names, random_movie_posters, random_movie_ratings = random_recommend()
+                names, posters, ratings = random_recommend()
 
             st.markdown("### Random Movie Picks:")
             cols = st.columns(5)
             for idx, col in enumerate(cols):
                 with col:
-                    st.image(random_movie_posters[idx], use_container_width=True, caption="")
-                    st.markdown(f"<div class='movie-title'>{random_movie_names[idx]}</div>", unsafe_allow_html=True)
-                    st.markdown(f"<div class='rating'>⭐ {random_movie_ratings[idx]}</div>", unsafe_allow_html=True)
+                    st.image(posters[idx], use_container_width=True)
+                    st.markdown(f"<div class='movie-title'>{names[idx]}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='rating'>⭐ {ratings[idx]}</div>", unsafe_allow_html=True)
