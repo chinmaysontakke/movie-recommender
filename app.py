@@ -2,12 +2,18 @@ import pickle
 import streamlit as st
 import requests
 
-# Set Streamlit page configuration - must be FIRST Streamlit command
+# Set Streamlit page configuration
 st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
 
-# Apply custom CSS with background image
+# Inject professional styling and fonts
 page_bg_img = '''
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Poppins', sans-serif;
+}
+
 .stApp {
     background-image: url("https://www.tvguide.com/a/img/resize/ae6d419fa23c9172b1e1fc004541d5086c81fc9b/hub/2023/01/15/a8b68ec4-fb44-45b8-87e6-7103d899540f/230115-netflixkorean.jpg?auto=webp&width=1092");
     background-size: cover;
@@ -16,25 +22,65 @@ page_bg_img = '''
     background-position: center;
     background-color: rgba(0, 0, 0, 0.7);
 }
+
+h1, h2, h3, h4, h5, h6, p, div {
+    color: #f0f0f0 !important;
+}
+
+.movie-title {
+    font-weight: 600;
+    font-size: 15px;
+    text-align: center;
+    color: #e1e1e1;
+}
+
+.rating {
+    text-align: center;
+    color: #ffcc00;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
 .poster {
-    border-radius: 15px;
-    transition: 0.3s;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 .poster:hover {
     transform: scale(1.05);
 }
-.movie-title {
-    font-weight: bold;
+
+.stButton > button {
+    background-color: #e50914;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 500;
     font-size: 16px;
-    text-align: center;
+    transition: background-color 0.3s;
 }
-.rating {
-    text-align: center;
+.stButton > button:hover {
+    background-color: #ff1e1e;
+}
+
+.login-box {
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    color: #ffffff !important;
+}
+
+.stTextInput > div > input {
+    background-color: #1f1f1f;
     color: #fff;
-    font-size: 14px;
+    border: 1px solid #444;
+    border-radius: 8px;
 }
-h1, h2, h3, h4, h5, h6, p, div {
-    color: #fff !important;
+
+.stTextInput > div > input::placeholder {
+    color: #999;
 }
 </style>
 '''
@@ -109,38 +155,12 @@ if not st.session_state.logged_in:
 
     col1, col2, col3 = st.columns([3, 2, 3])
     with col2:
-        st.markdown("""
-            <style>
-            .login-box {
-                background-color: rgba(0, 0, 0, 0.6);
-                padding: 30px;
-                border-radius: 15px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-                backdrop-filter: blur(6px);
-                color: white !important;
-            }
-            .login-box label {
-                color: #ffffff !important;
-                font-weight: 500;
-            }
-            .stTextInput > div > input {
-                background-color: #1e1e1e;
-                color: white;
-                border: 1px solid #333;
-            }
-            .stTextInput > div > input::placeholder {
-                color: #aaa;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-
-        with st.container():
-            st.markdown('<div class="login-box">', unsafe_allow_html=True)
-            with st.form(key="login_form"):
-                username = st.text_input("Username", placeholder="Enter your username")
-                password = st.text_input("Password", type="password", placeholder="Enter your password")
-                submit_button = st.form_submit_button(label="Login")
-            st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
+        with st.form(key="login_form"):
+            username = st.text_input("Username", placeholder="Enter your username")
+            password = st.text_input("Password", type="password", placeholder="Enter your password")
+            submit_button = st.form_submit_button(label="Login")
+        st.markdown('</div>', unsafe_allow_html=True)
 
         if submit_button:
             if login(username, password):
@@ -150,7 +170,6 @@ if not st.session_state.logged_in:
             else:
                 st.error("Invalid Credentials ❌")
 
-        # Sign-up section toggle
         st.markdown("<br><hr>", unsafe_allow_html=True)
         if 'show_signup' not in st.session_state:
             st.session_state.show_signup = False
@@ -202,7 +221,7 @@ else:
             cols = st.columns(5)
             for idx, col in enumerate(cols):
                 with col:
-                    st.image(posters[idx], use_container_width=True)
+                    st.image(posters[idx], use_container_width=True, caption="")
                     st.markdown(f"<div class='movie-title'>{names[idx]}</div>", unsafe_allow_html=True)
                     st.markdown(f"<div class='rating'>⭐ {ratings[idx]}</div>", unsafe_allow_html=True)
 
@@ -215,6 +234,13 @@ else:
             cols = st.columns(5)
             for idx, col in enumerate(cols):
                 with col:
-                    st.image(posters[idx], use_container_width=True)
+                    st.image(posters[idx], use_container_width=True, caption="")
                     st.markdown(f"<div class='movie-title'>{names[idx]}</div>", unsafe_allow_html=True)
                     st.markdown(f"<div class='rating'>⭐ {ratings[idx]}</div>", unsafe_allow_html=True)
+
+    # Footer
+    st.markdown("<hr style='border: 0.5px solid #444;'>", unsafe_allow_html=True)
+    st.markdown(
+        "<p style='text-align: center; font-size: 13px;'>© 2025 Movie Recommender. Designed for movie lovers by enthusiasts 🎬</p>",
+        unsafe_allow_html=True
+    )
