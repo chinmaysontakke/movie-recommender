@@ -107,39 +107,6 @@ if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
 # Streamlit App
-st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
-
-# Apply custom CSS
-st.markdown(""" 
-    <style> 
-        .stApp { 
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
-        } 
-        .poster { 
-            border-radius: 15px; 
-            transition: 0.3s; 
-        } 
-        .poster:hover { 
-            transform: scale(1.05); 
-        } 
-        .movie-title { 
-            font-weight: bold; 
-            font-size: 16px; 
-            text-align: center; 
-        } 
-        .rating { 
-            text-align: center; 
-            color: #666; 
-            font-size: 14px; 
-        } 
-        .logout-button { 
-            position: absolute; 
-            top: 10px; 
-            right: 10px; 
-        } 
-    </style> 
-""", unsafe_allow_html=True)
-
 # Login form
 if not st.session_state.logged_in:
     st.markdown("<h2 style='text-align: center;'>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
