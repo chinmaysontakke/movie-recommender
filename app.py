@@ -76,15 +76,11 @@ if 'logged_in' not in st.session_state:
 
 st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
 
-# Apply custom CSS with background image
+# Apply custom CSS
 st.markdown("""
     <style>
         .stApp {
-            background-image: url("netflix.jpg");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
         .poster {
             border-radius: 15px;
@@ -100,15 +96,16 @@ st.markdown("""
         }
         .rating {
             text-align: center;
-            color: #fff;
+            color: #666;
             font-size: 14px;
         }
-        h1, h2, h3, h4, h5, h6, p, div {
-            color: #fff !important;
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
         }
     </style>
 """, unsafe_allow_html=True)
-
 
 if not st.session_state.logged_in:
     st.markdown("<h2 style='text-align: center;'>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
