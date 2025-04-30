@@ -80,7 +80,7 @@ st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wid
 st.markdown("""
     <style>
         .stApp {
-            background-image: url("https://www.google.com/url?sa=i&url=https%3A%2F%2Fin.pinterest.com%2Fpin%2Fnetflix--778137641897142433%2F&psig=AOvVaw09468M8HqZRoKcKxwHgRvC&ust=1746111112465000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCKiBg_mAgI0DFQAAAAAdAAAAABAK");
+            background-image: url("netflix.jpg");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
