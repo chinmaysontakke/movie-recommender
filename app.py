@@ -92,24 +92,91 @@ except Exception as e:
 # ---------------------------------
 # Login System (simple centered design)
 # ---------------------------------
-# Function to display login form
-def login_form():
-    st.title("Login Page")
+# Define user credentials
+USER_CREDENTIALS = {
+    "admin": "1234",
+    "user": "password"
+}
 
-    # Input fields for username and password
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
+# Function to check login
+def login(username, password):
+    return USER_CREDENTIALS.get(username) == password
 
-    # Login button
-    if st.button("Login"):
-        if username == "admin" and password == "password":
-            st.success("Login Successful")
+# Initialize session state for logged_in status
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+# Streamlit App
+st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
+
+# Apply custom CSS
+st.markdown("""
+    <style>
+        .stApp {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .poster {
+            border-radius: 15px;
+            transition: 0.3s;
+        }
+        .poster:hover {
+            transform: scale(1.05);
+        }
+        .movie-title {
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+        }
+        .rating {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# Login form
+if not st.session_state.logged_in:
+    st.markdown("<h2 style='text-align: center;'>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
+    with st.form(key="login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submit_button = st.form_submit_button(label="Login")
+
+    if submit_button:
+        if login(username, password):
+            st.success("Login Successful ✅")
+            st.session_state.logged_in = True
+            st.session_state.username = username
         else:
-            st.error("Invalid Username or Password")
+            st.error("Invalid Credentials ❌")
 
-# Show the login form
-login_form()
-else:
+# Movie recommendation part after login
+if st.session_state.logged_in:
+    st.markdown(f"<h3>Welcome {st.session_state.username}!</h3>", unsafe_allow_html=True)
+    st.button("Logout", key="logout", on_click=lambda: st.session_state.update({"logged_in": False}))
+
+    # Example movie recommendations
+    st.markdown("### Movie Recommendations 🍿")
+
+    movies = [
+        {"title": "Inception", "rating": "8.8", "poster": "https://image.tmdb.org/t/p/w500/qmDpIHrmpJINaRKAfWQfftjCdyi.jpg"},
+        {"title": "The Dark Knight", "rating": "9.0", "poster": "https://image.tmdb.org/t/p/w500/rBT6j21zprzmlbZgjzZRMcbMlTH.jpg"},
+        {"title": "Interstellar", "rating": "8.6", "poster": "https://image.tmdb.org/t/p/w500/rjONVdBfqALF6VlvFsAL59QhAG5.jpg"}
+    ]
+
+    for movie in movies:
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            st.image(movie["poster"], width=150, use_column_width=True, caption=movie["title"], class_="poster")
+        with col2:
+            st.subheader(movie["title"])
+            st.text(f"Rating: {movie['rating']}")
     # Logout button
     with st.container():
         cols_top = st.columns([8, 1])
