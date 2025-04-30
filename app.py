@@ -89,86 +89,84 @@ except Exception as e:
 
 # ---------------------------------
 # ---------------------------------
-# Login System
 # ---------------------------------
-
-USER_CREDENTIALS = {
-    "admin": "1234",
-    "user": "password"
-}
-
-def login(username, password):
-    return USER_CREDENTIALS.get(username) == password
+# Login System (simple centered design)
+# ---------------------------------
+USER_CREDENTIALS = {"admin":"1234","user":"password"}
+def login(u,p): return USER_CREDENTIALS.get(u)==p
 
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
-# ---------------------------------
-# Main App Interface
-# ---------------------------------
-
 if not st.session_state.logged_in:
-    # Open a fixed-size, centered container
+    # CSS for centering and card style
     st.markdown("""
-      <style>
-        .login-container {
-          width: 950px;
-          height: 960px;
-          margin: 50px auto;
-          padding: 40px;
-          background: rgba(255,255,255,0.1);
-          border-radius: 12px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-        .login-container h2 {
-          color: #fff;
-          font-weight: bold;
-          text-align: center;
-        }
-        .login-container input {
-          width: 80%;
-          color: #fff !important;
-          background: rgba(0,0,0,0.4) !important;
-          border: 1px solid #777 !important;
-          font-weight: bold !important;
-          margin-bottom: 20px;
-        }
-        .login-container input::placeholder {
-          color: #ddd !important;
-        }
-        .login-container .stButton > button {
-          color: #fff !important;
-          background-color: rgba(255,255,255,0.2) !important;
-          border: 1px solid #fff !important;
-          font-weight: bold !important;
-          padding: 0.6em 2em !important;
-        }
-      </style>
-      <div class="login-container">
-        <h2>Login to Movie Recommender 🎬</h2>
+    <style>
+      .login-wrapper {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(0,0,0,0.5);
+        z-index: 1;
+      }
+      .login-card {
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        padding: 2.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        width: 320px;
+      }
+      .login-card h2 {
+        color: #fff;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-weight: bold;
+      }
+      .login-card .stTextInput > div > input {
+        background: rgba(255,255,255,0.2) !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 4px !important;
+        padding: 0.5rem !important;
+        margin-bottom: 1rem !important;
+        font-weight: bold !important;
+      }
+      .login-card .stTextInput > div > input::placeholder {
+        color: #eee !important;
+      }
+      .login-card .stButton > button {
+        width: 100%;
+        background: #ff4b4b !important;
+        color: #fff !important;
+        border: none !important;
+        padding: 0.6rem;
+        font-weight: bold;
+        border-radius: 4px;
+      }
+    </style>
+    <div class="login-wrapper">
+      <div class="login-card">
+        <h2>🔒 Sign In</h2>
     """, unsafe_allow_html=True)
 
-    with st.form(key="login_form"):
-        username = st.text_input("Username", placeholder="Enter your username")
-        password = st.text_input("Password", type="password", placeholder="Enter your password")
-        submit_button = st.form_submit_button(label="Login")
+    with st.form("login_form"):
+        username = st.text_input("Username", placeholder="Your username")
+        password = st.text_input("Password", type="password", placeholder="Your password")
+        submitted = st.form_submit_button("Login")
 
-    if submit_button:
+    if submitted:
         if login(username, password):
-            st.success("Login Successful ✅")
             st.session_state.logged_in = True
             st.session_state.username = username
             st.experimental_rerun()
         else:
-            st.error("Invalid Credentials ❌")
+            st.error("Invalid credentials", icon="⚠️")
 
-    # Close the container
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div></div>", unsafe_allow_html=True)
     st.stop()
-else:
     # Logout button
     with st.container():
         cols_top = st.columns([8, 1])
