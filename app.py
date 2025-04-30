@@ -106,18 +106,39 @@ if 'logged_in' not in st.session_state:
 
 if not st.session_state.logged_in:
     st.markdown("<h2 style='text-align: center;'>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
-    with st.form(key="login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submit_button = st.form_submit_button(label="Login")
 
-    if submit_button:
-        if login(username, password):
-            st.success("Login Successful ✅")
-            st.session_state.logged_in = True
-            st.session_state.username = username
-        else:
-            st.error("Invalid Credentials ❌")
+    # Define columns to center the form
+    col1, col2, col3 = st.columns([3, 2, 3])  # Middle column narrower
+
+    with col2:
+        st.markdown("""
+            <style>
+            .login-box {
+                background-color: rgba(255, 255, 255, 0.1);
+                padding: 30px;
+                border-radius: 15px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                backdrop-filter: blur(5px);
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+        with st.container():
+            st.markdown('<div class="login-box">', unsafe_allow_html=True)
+            with st.form(key="login_form"):
+                username = st.text_input("Username")
+                password = st.text_input("Password", type="password")
+                submit_button = st.form_submit_button(label="Login")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        if submit_button:
+            if login(username, password):
+                st.success("Login Successful ✅")
+                st.session_state.logged_in = True
+                st.session_state.username = username
+            else:
+                st.error("Invalid Credentials ❌")
+
 else:
     # Logout button
     with st.container():
