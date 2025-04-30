@@ -2,94 +2,206 @@ import pickle
 import streamlit as st
 import requests
 
-# 1) Page config first
+# ---------------------------------
+# Set Streamlit page configuration - must be FIRST Streamlit command
 st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
 
-# 2) Global CSS: background + login-box styling
-st.markdown("""
+# Apply custom CSS with background image
+page_bg_img = '''
 <style>
-/* Full-page cinematic background */
 body {
-  background-image: url("https://img.freepik.com/free-photo/3d-cinema-theatre-room-with-seating_23-2151005451.jpg");
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+background-image: url("https://img.freepik.com/free-photo/3d-cinema-theatre-room-with-seating_23-2151005451.jpg?t=st=1746025320~exp=1746028920~hmac=398453dea2c2d5ac85daa1995609f2b881e81ef7faf8975c97eeb4f5ad48c73b&w=1380");
+background-size: cover;
+background-repeat: no-repeat;
+background-attachment: fixed;
+background-position: center;
 }
-
-/* Semi-opaque overlay so text stands out */
-.stApp > .main {
-  background-color: rgba(0,0,0,0.6);
+.stApp {
+    background-color: rgba(0, 0, 0, 0.7);  /* optional dark overlay */
 }
-
-/* LOGIN CONTAINER */
-.login-container {
-  width: 950px;
-  height: 960px;
-  margin: 50px auto;               /* vertical space + center horizontally */
-  padding: 40px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;         /* vertical centering */
-  align-items: center;             /* horizontal centering */
+.poster {
+    border-radius: 15px;
+    transition: 0.3s;
 }
-
-/* HEADINGS & LABELS */
-.login-container h2,
-.login-container label {
-  color: #fff !important;
-  font-weight: bold !important;
-  text-align: center !important;
+.poster:hover {
+    transform: scale(1.05);
 }
-
-/* INPUT FIELDS */
-.login-container input {
-  color: #fff !important;
-  background-color: rgba(0,0,0,0.4) !important;
-  border: 1px solid #777 !important;
-  font-weight: bold !important;
+.movie-title {
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
 }
-
-/* PLACEHOLDERS */
-.login-container input::placeholder {
-  color: #ddd !important;
+.rating {
+    text-align: center;
+    color: #fff;
+    font-size: 14px;
 }
-
-/* BUTTON */
-.login-container .stButton > button {
-  color: #fff !important;
-  background-color: rgba(255,255,255,0.2) !important;
-  border: 1px solid #fff !important;
-  font-weight: bold !important;
-  padding: 0.6em 2em !important;
+h1, h2, h3, h4, h5, h6, p, div {
+    color: #fff !important;
 }
 </style>
-""", unsafe_allow_html=True)
+'''
+st.markdown(page_bg_img, unsafe_allow_html=True)
+# Helper functions
+# ---------------------------------
 
-# 3) Login logic & UI
-USER_CREDENTIALS = {"admin":"1234","user":"password"}
-def login(u,p): return USER_CREDENTIALS.get(u)==p
+def fetch_poster(movie_id):
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US"
+    data = requests.get(url)
+    data = data.json()
+    poster_path = data.get('poster_path')
+    rating = data.get('vote_average', 'N/A')
+    if poster_path:
+        full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
+        return full_path, rating
+    else:
+        return "https://via.placeholder.com/500x750?text=No+Image", rating
+
+def recommend(movie):
+    available_movies = movies[movies['title'] != movie]
+    recommended_movies = available_movies.sample(5)
+    recommended_movie_names = []
+    recommended_movie_posters = []
+    recommended_movie_ratings = []
+    for idx, row in recommended_movies.iterrows():
+        movie_id = row['movie_id']
+        poster, rating = fetch_poster(movie_id)
+        recommended_movie_names.append(row['title'])
+        recommended_movie_posters.append(poster)
+        recommended_movie_ratings.append(rating)
+    return recommended_movie_names, recommended_movie_posters, recommended_movie_ratings
+
+def random_recommend():
+    random_movies = movies.sample(5)
+    random_movie_names = []
+    random_movie_posters = []
+    random_movie_ratings = []
+    for idx, row in random_movies.iterrows():
+        movie_id = row['movie_id']
+        poster, rating = fetch_poster(movie_id)
+        random_movie_names.append(row['title'])
+        random_movie_posters.append(poster)
+        random_movie_ratings.append(rating)
+    return random_movie_names, random_movie_posters, random_movie_ratings
+
+# ---------------------------------
+# Load data
+# ---------------------------------
+
+try:
+    movies = pickle.load(open('movies.pkl', 'rb'))
+except Exception as e:
+    st.error(f"Error loading movie data: {e}")
+    st.stop()
+
+# ---------------------------------
+# Login System
+# ---------------------------------
+
+USER_CREDENTIALS = {
+    "admin": "1234",
+    "user": "password"
+}
+
+def login(username, password):
+    return USER_CREDENTIALS.get(username) == password
 
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
+# ---------------------------------
+# Streamlit App
+# ---------------------------------
+
+st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
+
+# Apply custom CSS
+st.markdown("""
+    <style>
+        .stApp {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .poster {
+            border-radius: 15px;
+            transition: 0.3s;
+        }
+        .poster:hover {
+            transform: scale(1.05);
+        }
+        .movie-title {
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+        }
+        .rating {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 if not st.session_state.logged_in:
-    # Wrap everything in a div.login-container
-    st.markdown("<div class='login-container'>", unsafe_allow_html=True)
-    st.markdown("<h2>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
-    with st.form("login_form"):
-        username = st.text_input("Username", placeholder="Enter your username")
-        password = st.text_input("Password", type="password", placeholder="Enter your password")
-        submit = st.form_submit_button("Login")
-    if submit:
+    st.markdown("<h2 style='text-align: center;'>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
+    with st.form(key="login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submit_button = st.form_submit_button(label="Login")
+
+    if submit_button:
         if login(username, password):
-            st.session_state.logged_in = True
             st.success("Login Successful ✅")
+            st.session_state.logged_in = True
+            st.session_state.username = username
         else:
             st.error("Invalid Credentials ❌")
-    st.markdown("</div>", unsafe_allow_html=True)
-
 else:
-    # …rest of your logged-in app…
-    st.write(f"Welcome, **{st.session_state.username}**")
+    # Top bar with logout
+    with st.container():
+        cols_top = st.columns([8, 1])
+        with cols_top[1]:
+            if st.button("Logout", key="logout", help="Logout", type="primary"):
+                st.session_state.logged_in = False
+                st.session_state.username = None
+                st.experimental_rerun()
+
+    st.markdown("<h1 style='text-align: center;'>Movie Recommender System 🍿</h1>", unsafe_allow_html=True)
+    st.write(f"### Welcome, **{st.session_state.username}** 👋")
+
+    movie_list = movies['title'].values
+    selected_movie = st.selectbox(
+        "Type or select a movie from the dropdown",
+        movie_list
+    )
+
+    cols_action = st.columns(2)
+    with cols_action[0]:
+        if st.button('Show Recommendation 🎯'):
+            with st.spinner('Fetching recommendations... 🎥'):
+                recommended_movie_names, recommended_movie_posters, recommended_movie_ratings = recommend(selected_movie)
+
+            st.markdown("### Recommended Movies:")
+            cols = st.columns(5)
+            for idx, col in enumerate(cols):
+                with col:
+                    st.image(recommended_movie_posters[idx], use_container_width=True, caption="")
+                    st.markdown(f"<div class='movie-title'>{recommended_movie_names[idx]}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='rating'>⭐ {recommended_movie_ratings[idx]}</div>", unsafe_allow_html=True)
+
+    with cols_action[1]:
+        if st.button('Surprise Me! 🎲'):
+            with st.spinner('Fetching random picks... 🎥'):
+                random_movie_names, random_movie_posters, random_movie_ratings = random_recommend()
+
+            st.markdown("### Random Movie Picks:")
+            cols = st.columns(5)
+            for idx, col in enumerate(cols):
+                with col:
+                    st.image(random_movie_posters[idx], use_container_width=True, caption="")
+                    st.markdown(f"<div class='movie-title'>{random_movie_names[idx]}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='rating'>⭐ {random_movie_ratings[idx]}</div>", unsafe_allow_html=True)
