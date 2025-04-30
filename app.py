@@ -9,7 +9,7 @@ st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wid
 page_bg_img = '''
 <style>
 .stApp {
-    background-image: url("https://img.freepik.com/free-photo/3d-cinema-theatre-room-with-seating_23-2151005451.jpg?t=st=1746025320~exp=1746028920~hmac=398453dea2c2d5ac85daa1995609f2b881e81ef7faf8975c97eeb4f5ad48c73b&w=1380");
+    background-image: url("https://www.filmmakersacademy.com/wp-content/uploads/2020/01/EOQ_t9SW4AEY0Uk.jpeg");
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
