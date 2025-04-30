@@ -88,6 +88,7 @@ except Exception as e:
     st.stop()
 
 # ---------------------------------
+# ---------------------------------
 # Login System
 # ---------------------------------
 
@@ -107,10 +108,52 @@ if 'logged_in' not in st.session_state:
 # ---------------------------------
 
 if not st.session_state.logged_in:
-    st.markdown("<h2 style='text-align: center;'>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
+    # Open a fixed-size, centered container
+    st.markdown("""
+      <style>
+        .login-container {
+          width: 950px;
+          height: 960px;
+          margin: 50px auto;
+          padding: 40px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 12px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        }
+        .login-container h2 {
+          color: #fff;
+          font-weight: bold;
+          text-align: center;
+        }
+        .login-container input {
+          width: 80%;
+          color: #fff !important;
+          background: rgba(0,0,0,0.4) !important;
+          border: 1px solid #777 !important;
+          font-weight: bold !important;
+          margin-bottom: 20px;
+        }
+        .login-container input::placeholder {
+          color: #ddd !important;
+        }
+        .login-container .stButton > button {
+          color: #fff !important;
+          background-color: rgba(255,255,255,0.2) !important;
+          border: 1px solid #fff !important;
+          font-weight: bold !important;
+          padding: 0.6em 2em !important;
+        }
+      </style>
+      <div class="login-container">
+        <h2>Login to Movie Recommender 🎬</h2>
+    """, unsafe_allow_html=True)
+
     with st.form(key="login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
+        username = st.text_input("Username", placeholder="Enter your username")
+        password = st.text_input("Password", type="password", placeholder="Enter your password")
         submit_button = st.form_submit_button(label="Login")
 
     if submit_button:
@@ -118,8 +161,13 @@ if not st.session_state.logged_in:
             st.success("Login Successful ✅")
             st.session_state.logged_in = True
             st.session_state.username = username
+            st.experimental_rerun()
         else:
             st.error("Invalid Credentials ❌")
+
+    # Close the container
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.stop()
 else:
     # Logout button
     with st.container():
