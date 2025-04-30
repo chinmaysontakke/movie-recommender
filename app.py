@@ -107,9 +107,7 @@ if 'logged_in' not in st.session_state:
 if not st.session_state.logged_in:
     st.markdown("<h2 style='text-align: center;'>Login to Movie Recommender 🎬</h2>", unsafe_allow_html=True)
 
-    # Define columns to center the form
-    col1, col2, col3 = st.columns([3, 2, 3])  # Middle column narrower
-
+    col1, col2, col3 = st.columns([3, 2, 3])
     with col2:
         st.markdown("""
             <style>
@@ -138,6 +136,28 @@ if not st.session_state.logged_in:
                 st.session_state.username = username
             else:
                 st.error("Invalid Credentials ❌")
+
+        # Sign-up section toggle
+        st.markdown("<br><hr>", unsafe_allow_html=True)
+        if 'show_signup' not in st.session_state:
+            st.session_state.show_signup = False
+
+        if st.button("New user? Sign Up"):
+            st.session_state.show_signup = not st.session_state.show_signup
+
+        if st.session_state.show_signup:
+            st.markdown("### Create a New Account")
+            new_username = st.text_input("New Username", key="signup_user")
+            new_password = st.text_input("New Password", type="password", key="signup_pass")
+            if st.button("Create Account"):
+                if new_username in USER_CREDENTIALS:
+                    st.warning("Username already exists. Choose a different one.")
+                elif new_username == "" or new_password == "":
+                    st.warning("Username and password cannot be empty.")
+                else:
+                    USER_CREDENTIALS[new_username] = new_password
+                    st.success("Account created successfully! You can now log in.")
+                    st.session_state.show_signup = False
 
 else:
     # Logout button
