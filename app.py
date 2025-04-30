@@ -92,81 +92,24 @@ except Exception as e:
 # ---------------------------------
 # Login System (simple centered design)
 # ---------------------------------
-USER_CREDENTIALS = {"admin":"1234","user":"password"}
-def login(u,p): return USER_CREDENTIALS.get(u)==p
+# Function to display login form
+def login_form():
+    st.title("Login Page")
 
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
+    # Input fields for username and password
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
 
-if not st.session_state.logged_in:
-    # CSS for centering and card style
-    st.markdown("""
-    <style>
-      .login-wrapper {
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: rgba(0,0,0,0.5);
-        z-index: 1;
-      }
-      .login-card {
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(10px);
-        padding: 2.5rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        width: 320px;
-      }
-      .login-card h2 {
-        color: #fff;
-        text-align: center;
-        margin-bottom: 1.5rem;
-        font-weight: bold;
-      }
-      .login-card .stTextInput > div > input {
-        background: rgba(255,255,255,0.2) !important;
-        color: #fff !important;
-        border: none !important;
-        border-radius: 4px !important;
-        padding: 0.5rem !important;
-        margin-bottom: 1rem !important;
-        font-weight: bold !important;
-      }
-      .login-card .stTextInput > div > input::placeholder {
-        color: #eee !important;
-      }
-      .login-card .stButton > button {
-        width: 100%;
-        background: #ff4b4b !important;
-        color: #fff !important;
-        border: none !important;
-        padding: 0.6rem;
-        font-weight: bold;
-        border-radius: 4px;
-      }
-    </style>
-    <div class="login-wrapper">
-      <div class="login-card">
-        <h2>🔒 Sign In</h2>
-    """, unsafe_allow_html=True)
-
-    with st.form("login_form"):
-        username = st.text_input("Username", placeholder="Your username")
-        password = st.text_input("Password", type="password", placeholder="Your password")
-        submitted = st.form_submit_button("Login")
-
-    if submitted:
-        if login(username, password):
-            st.session_state.logged_in = True
-            st.session_state.username = username
-            st.experimental_rerun()
+    # Login button
+    if st.button("Login"):
+        if username == "admin" and password == "password":
+            st.success("Login Successful")
         else:
-            st.error("Invalid credentials", icon="⚠️")
+            st.error("Invalid Username or Password")
 
-    st.markdown("</div></div>", unsafe_allow_html=True)
-    st.stop()
+# Show the login form
+login_form()
+else:
     # Logout button
     with st.container():
         cols_top = st.columns([8, 1])
