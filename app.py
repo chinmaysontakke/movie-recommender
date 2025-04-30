@@ -3,47 +3,6 @@ import streamlit as st
 import requests
 
 # ---------------------------------
-# Set Streamlit page configuration - must be FIRST Streamlit command
-st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
-
-# Apply custom CSS with background image
-page_bg_img = '''
-<style>
-body {
-background-image: url("https://img.freepik.com/free-photo/3d-cinema-theatre-room-with-seating_23-2151005451.jpg?t=st=1746025320~exp=1746028920~hmac=398453dea2c2d5ac85daa1995609f2b881e81ef7faf8975c97eeb4f5ad48c73b&w=1380");
-background-size: cover;
-background-repeat: no-repeat;
-background-attachment: fixed;
-background-position: center;
-}
-.stApp {
-    background-color: rgba(0, 0, 0, 0.7);  /* optional dark overlay */
-}
-.poster {
-    border-radius: 15px;
-    transition: 0.3s;
-}
-.poster:hover {
-    transform: scale(1.05);
-}
-.movie-title {
-    font-weight: bold;
-    font-size: 16px;
-    text-align: center;
-}
-.rating {
-    text-align: center;
-    color: #fff;
-    font-size: 14px;
-}
-h1, h2, h3, h4, h5, h6, p, div {
-    color: #fff !important;
-}
-</style>
-'''
-st.markdown(page_bg_img, unsafe_allow_html=True)
-
-# ---------------------------------
 # Helper functions
 # ---------------------------------
 
@@ -114,6 +73,8 @@ if 'logged_in' not in st.session_state:
 # ---------------------------------
 # Streamlit App
 # ---------------------------------
+
+st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
 
 # Apply custom CSS
 st.markdown("""
