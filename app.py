@@ -1,120 +1,20 @@
 import pickle
 import streamlit as st
 import requests
+import pandas as pd
 
 # Set Streamlit page configuration
-st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wide")
+st.set_page_config(page_title="Netflix Recommender", page_icon="🍿", layout="wide")
 
-# Inject professional styling and fonts
-page_bg_img = '''
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+# ---------------------------------
+# Load Data
+# ---------------------------------
 
-html, body, [class*="css"] {
-    font-family: 'Poppins', sans-serif;
-}
-
-.stApp {
-    background-image: url("https://www.tvguide.com/a/img/resize/ae6d419fa23c9172b1e1fc004541d5086c81fc9b/hub/2023/01/15/a8b68ec4-fb44-45b8-87e6-7103d899540f/230115-netflixkorean.jpg?auto=webp&width=1092");
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center;
-    background-color: rgba(0, 0, 0, 0.7);
-}
-
-h1, h2, h3, h4, h5, h6, p, div {
-    color: #f0f0f0 !important;
-}
-
-.movie-title {
-    font-weight: 600;
-    font-size: 15px;
-    text-align: center;
-    color: #e1e1e1;
-}
-
-.rating {
-    text-align: center;
-    color: #ffcc00;
-    font-size: 14px;
-    margin-top: 4px;
-}
-
-.poster {
-    border-radius: 12px;
-    transition: transform 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-}
-.poster:hover {
-    transform: scale(1.05);
-}
-
-.stButton > button {
-    background-color: #e50914;
-    color: #ffffff;
-    border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-weight: 500;
-    font-size: 16px;
-    transition: background-color 0.3s;
-}
-.stButton > button:hover {
-    background-color: #ff1e1e;
-}
-
-.login-box {
-    background-color: rgba(0, 0, 0, 0.75);
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    color: #ffffff !important;
-}
-
-.stTextInput > div > input {
-    background-color: #1f1f1f;
-    color: #fff;
-    border: 1px solid #444;
-    border-radius: 8px;
-}
-
-.stTextInput > div > input::placeholder {
-    color: #999;
-}
-<style>
-/* Enhanced dropdown styling */
-.stSelectbox > div > div {
-    background-color: #1f1f1f !important;
-    color: #ffffff !important;
-    border-radius: 8px;
-    border: 1px solid #666;
-    font-size: 15px;
-}
-
-.stSelectbox div[role="combobox"] span {
-    color: #ffffff !important;
-}
-
-/* Dropdown options styling */
-ul[data-baseweb="menu"] {
-    background-color: #1f1f1f !important;
-    color: #ffffff !important;
-    font-size: 14px;
-}
-
-ul[data-baseweb="menu"] li {
-    padding: 8px 12px;
-}
-
-ul[data-baseweb="menu"] li:hover {
-    background-color: #333333 !important;
-}
-</style>
-
-</style>
-'''
-st.markdown(page_bg_img, unsafe_allow_html=True)
+try:
+    movies = pickle.load(open('movies.pkl', 'rb'))
+except Exception as e:
+    st.error(f"Error loading movie data: {e}")
+    st.stop()
 
 # ---------------------------------
 # Helper Functions
@@ -152,17 +52,136 @@ def random_recommend():
     return names, posters, ratings
 
 # ---------------------------------
-# Load Data
+# Styling
 # ---------------------------------
 
-try:
-    movies = pickle.load(open('movies.pkl', 'rb'))
-except Exception as e:
-    st.error(f"Error loading movie data: {e}")
-    st.stop()
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .stApp {
+        background-image: url("https://www.transparenttextures.com/patterns/asfalt-dark.png");
+        background-color: #111 !important;
+    }
+
+    .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: rgba(0,0,0,0.85);
+        padding: 10px 30px;
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .navbar-title {
+        color: #e50914;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .navbar-right {
+        color: #ffffff;
+        font-size: 14px;
+    }
+
+    .movie-title {
+        font-weight: 600;
+        font-size: 15px;
+        text-align: center;
+        color: #e1e1e1;
+    }
+
+    .rating {
+        text-align: center;
+        color: #ffcc00;
+        font-size: 14px;
+        margin-top: 4px;
+    }
+
+    .poster {
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .poster:hover {
+        transform: scale(1.05);
+    }
+
+    .stButton > button {
+        background-color: #e50914;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: 500;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .stButton > button:hover {
+        background-color: #ff1e1e;
+    }
+
+    .login-box {
+        background-color: rgba(0, 0, 0, 0.75);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        color: #ffffff !important;
+    }
+
+    .stTextInput > div > input {
+        background-color: #1f1f1f;
+        color: #fff;
+        border: 1px solid #444;
+        border-radius: 8px;
+    }
+
+    .stTextInput > div > input::placeholder {
+        color: #999;
+    }
+
+    /* Enhanced dropdown styling */
+    .stSelectbox > div > div {
+        background-color: #1f1f1f !important;
+        color: #ffffff !important;
+        border-radius: 8px;
+        border: 1px solid #666;
+        font-size: 15px;
+    }
+
+    .stSelectbox div[role="combobox"] span {
+        color: #ffffff !important;
+    }
+
+    /* Dropdown options styling */
+    ul[data-baseweb="menu"] {
+        background-color: #1f1f1f !important;
+        color: #ffffff !important;
+        font-size: 14px;
+    }
+
+    ul[data-baseweb="menu"] li {
+        padding: 8px 12px;
+    }
+
+    ul[data-baseweb="menu"] li:hover {
+        background-color: #333333 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # ---------------------------------
-# Login System
+# User Authentication
 # ---------------------------------
 
 USER_CREDENTIALS = {
@@ -225,6 +244,15 @@ if not st.session_state.logged_in:
                     st.session_state.show_signup = False
 
 else:
+    # Navbar
+    st.markdown(f"""
+    <div class='navbar'>
+        <div class='navbar-title'>Netflix Recommender</div>
+        <div class='navbar-right'>👤 {st.session_state.username}</div>
+    </div>
+    <br><br><br>
+    """, unsafe_allow_html=True)
+
     # Logout button
     with st.container():
         cols_top = st.columns([8, 1])
@@ -264,13 +292,6 @@ else:
             cols = st.columns(5)
             for idx, col in enumerate(cols):
                 with col:
-                    st.image(posters[idx], use_container_width=True, caption="")
-                    st.markdown(f"<div class='movie-title'>{names[idx]}</div>", unsafe_allow_html=True)
-                    st.markdown(f"<div class='rating'>⭐ {ratings[idx]}</div>", unsafe_allow_html=True)
-
-    # Footer
-    st.markdown("<hr style='border: 0.5px solid #444;'>", unsafe_allow_html=True)
-    st.markdown(
-        "<p style='text-align: center; font-size: 13px;'>© 2025 Movie Recommender. Designed for movie lovers by enthusiasts 🎬</p>",
-        unsafe_allow_html=True
-    )
+                    st.image(posters[idx], use_container_width=True,
+::contentReference[oaicite:0]{index=0}
+ 
