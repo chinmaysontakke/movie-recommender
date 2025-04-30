@@ -4,6 +4,20 @@ import requests
 
 # ---------------------------------
 # Helper functions
+page_bg_img = '''
+<style>
+body {
+background-image: url("https://img.freepik.com/free-photo/3d-cinema-theatre-room-with-seating_23-2151005451.jpg?t=st=1746025320~exp=1746028920~hmac=398453dea2c2d5ac85daa1995609f2b881e81ef7faf8975c97eeb4f5ad48c73b&w=1380");
+background-size: cover;
+background-repeat: no-repeat;
+background-attachment: fixed;
+background-position: center;
+}
+</style>
+'''
+
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
 # ---------------------------------
 
 def fetch_poster(movie_id):
