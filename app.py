@@ -82,6 +82,36 @@ h1, h2, h3, h4, h5, h6, p, div {
 .stTextInput > div > input::placeholder {
     color: #999;
 }
+<style>
+/* Enhanced dropdown styling */
+.stSelectbox > div > div {
+    background-color: #1f1f1f !important;
+    color: #ffffff !important;
+    border-radius: 8px;
+    border: 1px solid #666;
+    font-size: 15px;
+}
+
+.stSelectbox div[role="combobox"] span {
+    color: #ffffff !important;
+}
+
+/* Dropdown options styling */
+ul[data-baseweb="menu"] {
+    background-color: #1f1f1f !important;
+    color: #ffffff !important;
+    font-size: 14px;
+}
+
+ul[data-baseweb="menu"] li {
+    padding: 8px 12px;
+}
+
+ul[data-baseweb="menu"] li:hover {
+    background-color: #333333 !important;
+}
+</style>
+
 </style>
 '''
 st.markdown(page_bg_img, unsafe_allow_html=True)
