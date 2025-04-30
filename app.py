@@ -9,7 +9,7 @@ st.set_page_config(page_title="Movie Recommender", page_icon="🍿", layout="wid
 page_bg_img = '''
 <style>
 .stApp {
-    background-image: url("https://www.filmmakersacademy.com/wp-content/uploads/2020/01/EOQ_t9SW4AEY0Uk.jpeg");
+    background-image: url("https://www.tvguide.com/a/img/resize/ae6d419fa23c9172b1e1fc004541d5086c81fc9b/hub/2023/01/15/a8b68ec4-fb44-45b8-87e6-7103d899540f/230115-netflixkorean.jpg?auto=webp&width=1092");
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
